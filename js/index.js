@@ -3,12 +3,24 @@ $(function() {
     $.getJSON("data.json", function(json) {
         $(document).attr("title", json.name);
         $('#person_name').text(json.name);
-        console.log(json); // this will show the info it in firebug console
         json_result = json;
         get_years_index(json.data);
         $( ".month_link").one( "click", function() {
             display_photos( $(this).attr('data') );
         });
+        //display default month
+        var year,month;
+        for(row of json.data){
+            for(month_data of row.contents){
+                var _files = month_data.files;
+                if(_files.length>0){
+                    year = row.year;
+                    month = month_data.month;
+                }
+            }
+        }
+        display_photos(year+'_'+month);
+
     });
     function display_photos(year_month){
         var ym = year_month.split('_');
@@ -44,7 +56,7 @@ $(function() {
         var content = '';
         for(row of data){
             year = row.year;
-            months = row.contents;
+            months = sort_months(row.contents);
             content+='<li class="mb-1">';
             content+='	  <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed" data-bs-toggle="collapse" data-bs-target="#'+get_target_name(year)+'" aria-expanded="false">'
             content+=year;
@@ -61,7 +73,15 @@ $(function() {
         }
         $('#years_index').html(content);
     }
-
+    function sort_months(months){
+        months.sort((a, b) => {
+            return (
+                new Date(`${a.month} 2022`) -
+                new Date(`${b.month} 2022`)
+            );
+        });
+        return months;
+    }
 
     (() => {
         'use strict'
